@@ -5,9 +5,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.*;
+import javax.servlet.http.HttpServletRequest;
+
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.security.cert.X509Certificate;
 
 public class HttpUtils {
@@ -75,7 +78,7 @@ public class HttpUtils {
         conn.setRequestProperty(USER_AGENT, USER_AGENT_VALUE);
         conn.setRequestProperty(CONNECTION, CONNECTION_VALUE);
         conn.setRequestProperty(ACCEPT, "*/*");
-        try (PrintWriter out = new PrintWriter(conn.getOutputStream()); BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), UTF8))) {
+        try (PrintWriter out = new PrintWriter(conn.getOutputStream()); BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
             String line;
             while ((line = in.readLine()) != null) {
                 result.append(line);
@@ -142,6 +145,11 @@ public class HttpUtils {
         public boolean verify(String hostname, SSLSession session) {
            return true;
         }
+    }
+    
+    public static boolean isAjaxRequest(HttpServletRequest request) {
+        return (request.getHeader("X-Requested-With") != null
+                && "XMLHttpRequest".equals(request.getHeader("X-Requested-With")));
     }
 
 }
